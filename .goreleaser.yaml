@@ -1,5 +1,3 @@
-# The lines below are called `modelines`. See `:help modeline`
-# Feel free to remove those if you don't want/need to use them.
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
 # vim: set ts=2 sw=2 tw=0 fo=cnqoj
 
@@ -15,7 +13,7 @@ before:
     - go generate ./...
 
 builds:
-  - id: example-build
+  - id: example-build-1
     main: ./cmd/platformtestd
     env:
       - CGO_ENABLED=0
@@ -28,8 +26,30 @@ builds:
     goarch:
       - amd64
       - arm64
+  - id: example-build-2
+    main: ./cmd/platformtestd
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commitHash={{.ShortCommit}} -X main.buildDate={{.Date}}"
+    goarch:
+      - amd64
+      - arm64
+    binary: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
+    no_unique_dist_dir: true
 archives:
-  - format: binary
+  - id: example-build-1
+    format: binary
+  - id: example-build-2
+    format: binary
+    builds:
+      - example-build-2
+    wrap_in_directory: false
+    name_template: "{{ .Binary }}"
 # archives:
 #   - formats: [tar.gz]
 #     # this name template makes the OS and Arch compatible with the results of `uname`.
